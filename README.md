@@ -83,7 +83,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Authors & Acknowledgment
 
-- [Your Name] - *Initial work* - [YourGithubProfile]
+- Arshia Taghavinjead - *Initial work* - [123456Arshia]
 - Thanks to all the contributors who have helped shape this project.
 
 ## Contact
