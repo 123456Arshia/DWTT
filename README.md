@@ -32,7 +32,7 @@ This repository contains a robust and feature-rich C++ implementation of the Tri
     ```
 2. **Navigate to the project directory:**
     ```bash
-    cd <repository-name>
+    cd DWTT
     ```
 
 ### Compilation
@@ -40,7 +40,7 @@ This repository contains a robust and feature-rich C++ implementation of the Tri
 Compile the project using a C++11 compatible compiler:
 
 ```bash
-g++ -std=c++11 -o TrieApp main.cpp Trie.cpp TrieNode.cpp CLI.cpp
+g++ -std=c++11 -o TrieApp main.cpp Trie.cpp TrieNode.cpp Cli.cpp
 ```
 
 ### Running the Application
