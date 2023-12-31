@@ -1,109 +1,102 @@
-# DWTT
-# Dynamic Weighted Trie Tree: Comprehensive Implementation Guide
+Here's a comprehensive README.md template for your Trie project. Customize it to fit the specifics of your project and repository.
 
-## Introduction
+```markdown
+# Comprehensive Trie Data Structure Implementation
 
-The Dynamic Weighted Trie Tree is an advanced data structure optimized for the efficient storage and retrieval of strings. It dynamically adjusts its structure based on usage patterns to maintain optimal performance. This comprehensive guide provides detailed information about the implementation, functionalities, and usage of the Dynamic Weighted Trie Tree.
+## Overview
 
-## Table of Contents
+This repository contains a robust and feature-rich C++ implementation of the Trie data structure, optimized for efficient string retrieval and manipulation. Tries are fundamental data structures used in various applications such as autocomplete systems, spell checkers, and IP routing. This project aims to provide a solid foundation for any application that could benefit from a Trie's capabilities.
 
-1. [Introduction](#introduction)
-2. [Table of Contents](#table-of-contents)
-3. [Component Overview](#component-overview)
-    - [TrieNode Class](#trienode-class)
-    - [Trie Class](#trie-class)
-4. [Key Functionalities](#key-functionalities)
-    - [Insertion](#insertion)
-    - [Search](#search)
-    - [Weight Decay](#weight-decay)
-    - [Path Optimization](#path-optimization)
-5. [Auxiliary Methods](#auxiliary-methods)
-6. [Usage Example](#usage-example)
-7. [Compiling and Execution](#compiling-and-execution)
-8. [Configuration and Customization](#configuration-and-customization)
-9. [Memory Management](#memory-management)
-10. [Performance Considerations](#performance-considerations)
-11. [Testing and Validation](#testing-and-validation)
-12. [Contributing](#contributing)
-13. [License](#license)
-14. [Contact and Support](#contact-and-support)
-15. [Acknowledgments](#acknowledgments)
+## Features
 
-## Component Overview
+- **Insert**: Add words to the Trie with time complexity O(length of word).
+- **Search**: Efficiently check if a word exists in the Trie.
+- **Delete**: Remove words from the Trie, ensuring optimal memory usage.
+- **Weight Decay**: Apply decay to node weights, useful for prioritizing recent or frequent entries.
+- **Optimize Paths**: Dynamically optimize search paths based on usage patterns.
+- **View Trie**: Display a visual representation of the Trie's structure for debugging and analysis.
+- **Prefix Search**: Retrieve all words sharing a common prefix, ideal for autocomplete functionalities.
+- **Wildcard Search**: Support for wildcard searches, enhancing the Trie's flexibility in pattern matching.
+- **Auto-Complete**: Generate auto-complete suggestions based on a given prefix.
 
-### TrieNode Class
+## Getting Started
 
-**Attributes:**
-- `Children`: Map of characters to TrieNode pointers, representing subsequent characters in inserted strings.
-- `Shortcut`: Optional faster access path to a frequently accessed node.
-- `EndOfWord`: Boolean indicating if the node marks the end of an inserted word.
-- `Weight`: Integer representing the node's access frequency.
-- `LastAccessTime`: Timestamp of the last access for the node.
+### Prerequisites
 
-### Trie Class
+- A modern C++ compiler capable of C++11 (e.g., GCC, Clang)
+- Basic knowledge of C++ and data structures
 
-**Attributes:**
-- `Root`: The root node of the Trie Tree.
-- `OperationCount`: Tracks the number of operations to determine rebalancing times.
-- `RebalanceThreshold`: The threshold for triggering a rebalance.
-- `DecayFactor`: The rate at which the weight of nodes decays over time.
+### Installation
 
-## Key Functionalities
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/123456Arshia/DWTT.git
+    ```
+2. **Navigate to the project directory:**
+    ```bash
+    cd <repository-name>
+    ```
 
-### Insertion
-`void insert(const string& word)`: Adds a new word to the Trie, updating node weights and triggering a rebalance if necessary.
+### Compilation
 
-### Search
-`bool search(const string& word)`: Searches for a word, returning true if found.
+Compile the project using a C++11 compatible compiler:
 
-### Weight Decay
-`void applyWeightDecay()`: Reduces node weights over time, reflecting diminished usage.
+```bash
+g++ -std=c++11 -o TrieApp main.cpp Trie.cpp TrieNode.cpp CLI.cpp
+```
 
-### Path Optimization
-`void optimizePaths(int currentTime)`: Creates shortcuts to frequently accessed nodes to enhance search efficiency.
+### Running the Application
 
-## Auxiliary Methods
+Execute the compiled application:
 
-Detailed descriptions of private methods like `rebalance()`, `flattenTrie()`, `clearTrie()`, `decayWeights()`, and various optimization utilities.
+```bash
+./TrieApp
+```
 
-## Usage Example
+Follow the on-screen prompts to interact with the Trie.
 
-A step-by-step guide demonstrating the Trie's instantiation, insertion of strings, application of weight decay, and path optimization. Includes expected outputs and explanations.
+## Usage
 
-## Compiling and Execution
+The application provides a command-line interface (CLI) with a range of operations. Here's a brief on how to use each:
 
-Detailed instructions for compiling with C++11 (or later) compilers and executing the program. Includes system requirements and dependency management.
+- **Insert**: Enter the word you wish to add to the Trie.
+- **Search**: Input the word you want to find.
+- **Delete**: Specify the word you intend to remove from the Trie.
+- **View Trie**: No input needed; it visually represents the Trie's current state.
+- **Prefix/Wildcard Search/Auto-Complete**: Provide the relevant prefix or pattern.
 
-## Configuration and Customization
+## Documentation
 
-Guidelines for adjusting `RebalanceThreshold` and `DecayFactor` to suit different usage scenarios and performance goals.
-
-## Memory Management
-
-In-depth discussion on the strategies implemented to ensure efficient memory use and prevent leaks, especially during dynamic operations.
-
-## Performance Considerations
-
-Analysis of the Trie's performance characteristics, including time complexity, space usage, and scenarios where the structure is particularly advantageous.
-
-## Testing and Validation
-
-Description of the testing framework used, test cases, and instructions for running tests to validate the Trie's functionality and performance.
+Detailed documentation for each method and its usage can be found in the respective header files. Comments and explanations are provided throughout the code to guide you through the implementation.
 
 ## Contributing
 
-Guidelines for contributing to the project, including code style, pull request process, and community norms.
+Contributions are what make the open-source community such a fantastic place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
-Details of the licensing terms under which the Dynamic Weighted Trie Tree is released.
+Distributed under the MIT License. See `LICENSE` for more information.
 
-## Contact and Support
+## Authors & Acknowledgment
 
-arshiataghavinejad@gmail.com
+- [Your Name] - *Initial work* - [YourGithubProfile]
+- Thanks to all the contributors who have helped shape this project.
 
+## Contact
 
+Arshia Taghavinejad -  arshiataghavinehjad@gmail.com
+
+Project Link: [https://github.com/your_username/repo_name](https://github.com/123456Arshia/DWTT)
+
+## Additional Notes
+
+- This project is a work in progress and subject to significant changes.
+- Feedback and suggestions are welcome and can be submitted via GitHub issues.
 
 ---
-
-This guide aims to be a thorough resource for understanding, using, and contributing to the Dynamic Weighted Trie Tree project. It is intended for developers, researchers, and anyone interested in advanced data structures and performance optimization.
