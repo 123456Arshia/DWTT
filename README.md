@@ -90,7 +90,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Arshia Taghavinejad -  arshiataghavinehjad@gmail.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/123456Arshia/DWTT)
+Project Link: [https://github.com/123456Arshia/DWTT](https://github.com/123456Arshia/DWTT)
 
 ## Additional Notes
 
