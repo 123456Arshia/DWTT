@@ -1,6 +1,4 @@
-Here's a comprehensive README.md template for your Trie project. Customize it to fit the specifics of your project and repository.
 
-```markdown
 # Comprehensive Trie Data Structure Implementation
 
 ## Overview
