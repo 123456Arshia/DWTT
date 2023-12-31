@@ -1,14 +1,9 @@
-//
-//  main.cpp
-//  dwtt
-//
-//  Created by Arshia Taghavinejad on 2023-12-19.
-//
-
 #include <iostream>
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <sstream>
+#include <limits>
 
 using namespace std;
 
@@ -21,7 +16,16 @@ public:
     int lastAccessTime;
 
     TrieNode() : shortcut(nullptr), endOfWord(false), weight(0), lastAccessTime(0) {}
+    ~TrieNode();
 };
+
+TrieNode::~TrieNode() {
+    for (auto& child : children) {
+        delete child.second;
+        child.second = nullptr;
+    }
+}
+
 
 class Trie {
 private:
@@ -38,6 +42,103 @@ public:
     ~Trie() {
         clearTrie(root);
     }
+    void findWordsWithPrefix(TrieNode* node, const string& prefix, vector<string>& results, string currentWord) {
+        if (node == nullptr) {
+            return;
+        }
+        if (node->endOfWord) {
+            results.push_back(currentWord);
+        }
+        for (auto& child : node->children) {
+            findWordsWithPrefix(child.second, prefix, results, currentWord + child.first);
+        }
+    }
+
+    vector<string> searchPrefix(const string& prefix) {
+        vector<string> results;
+        TrieNode* current = root;
+        for (char ch : prefix) {
+            if (current->children.find(ch) == current->children.end()) {
+                return results;
+            }
+            current = current->children[ch];
+        }
+        findWordsWithPrefix(current, prefix, results, prefix);
+        return results;
+    }
+
+    void searchWildcard(TrieNode* node, const string& word, int index, string currentWord, vector<string>& results) {
+        if (node == nullptr) {
+            return;
+        }
+
+        if (index == word.size()) {
+            if (node->endOfWord) {
+                results.push_back(currentWord);
+            }
+            return;
+        }
+
+        if (word[index] == '*') {
+            for (auto& child : node->children) {
+                searchWildcard(child.second, word, index + 1, currentWord + child.first, results);
+            }
+        } else {
+            if (node->children.find(word[index]) != node->children.end()) {
+                searchWildcard(node->children[word[index]], word, index + 1, currentWord + word[index], results);
+            }
+        }
+    }
+
+    vector<string> wildcardSearch(const string& word) {
+        vector<string> results;
+        searchWildcard(root, word, 0, "", results);
+        return results;
+    }
+
+    
+    vector<string> autoComplete(const string& prefix) {
+        return searchPrefix(prefix);
+    }
+
+    void viewTrie(TrieNode* node, const string& prefix, string indent = "", bool last = true) const {
+        if (node != nullptr) {
+            cout << indent;
+            if (last) {
+                cout << "└─";
+                indent += "  ";
+            } else {
+                cout << "├─";
+                indent += "| ";
+            }
+
+            cout << prefix;
+            if (node->endOfWord) cout << "*";
+            cout << " (W:" << node->weight << ")";
+            
+            if (node->shortcut) {
+                cout << " -- shortcut to ";
+                auto shortcutChild = node->shortcut->children.begin();
+                while (shortcutChild != node->shortcut->children.end()) {
+                    cout << shortcutChild->first;
+                    shortcutChild++;
+                }
+            }
+            cout << endl;
+
+            auto children = node->children.begin();
+            while (children != node->children.end()) {
+                viewTrie(children->second, string(1, children->first), indent, ++children == node->children.end());
+            }
+        }
+    }
+
+    void view() const {
+        cout << "Visual Representation of Trie:\n";
+        viewTrie(root, "");
+    }
+
+
 
     void insert(const string& word) {
         TrieNode* current = root;
@@ -74,6 +175,35 @@ public:
         optimizeNode(root, nullptr, '\0', 0, currentTime);
     }
 
+    bool removeHelper(TrieNode* current, const string& word, int index) {
+        if (index == word.size()) {
+            if (!current->endOfWord) {
+                return false;
+            }
+            current->endOfWord = false;
+            return current->children.empty();
+        }
+
+        char ch = word[index];
+        TrieNode* node = current->children[ch];
+        if (!node) {
+            return false;
+        }
+
+        bool shouldDeleteCurrentNode = removeHelper(node, word, index + 1) && !node->endOfWord;
+
+        if (shouldDeleteCurrentNode) {
+            delete node;
+            current->children.erase(ch);
+            return current->children.empty();
+        }
+
+        return false;
+    }
+
+    void remove(const string& word) {
+        removeHelper(root, word, 0);
+    }
 private:
     void rebalance() {
         vector<pair<string, int>> keyWeightPairs = flattenTrie(root, "");
@@ -101,19 +231,15 @@ private:
         return result;
     }
 
+
     void clearTrie(TrieNode* node) {
         if (node == nullptr) return;
 
-        for (auto it = node->children.begin(); it != node->children.end();) {
-            clearTrie(it->second);
-            delete it->second;
-            it = node->children.erase(it);
+        for (auto& child : node->children) {
+            clearTrie(child.second);
+            child.second = nullptr;
         }
-
-        // Make sure to handle the case when node is the root to avoid double deletion
-        if (node != root) {
-            delete node;
-        }
+        delete node;
     }
 
     void decayWeights(TrieNode* node) {
@@ -217,20 +343,230 @@ private:
         findMaxWeightDepth(node, 0, maxWeight, maxDepth);
         return maxDepth;
     }
+    
+ 
 };
+
+void printMenu() {
+    cout << "\n--- Trie CLI ---\n";
+    cout << "1: Insert word\n";
+    cout << "2: Search word\n";
+    cout << "3: Delete word\n";
+    cout << "4: Apply weight decay\n";
+    cout << "5: Optimize paths\n";
+    cout << "6: View Trie\n";
+    cout << "7: Help\n";
+    cout << "8: Prefix Search\n";
+    cout << "9: Wildcard Search\n";
+    cout << "10: Auto-Complete\n";
+    cout << "11: Exit\n";
+    cout << "Choose an option: ";
+}
+
+void viewTrie(TrieNode* node, const string& prefix) {
+    if (node == nullptr) return;
+    if (node->endOfWord) cout << prefix << endl;
+    for (auto& child : node->children) {
+        viewTrie(child.second, prefix + child.first);
+    }
+}
+
+// Function to safely get the user's menu choice.
+int getChoice() {
+    int choice;
+    string input;
+    while (true) {
+        cout << "Enter your choice (number): ";
+        getline(cin, input);
+        stringstream inputStream(input);
+        if (inputStream >> choice && inputStream.eof() && choice >= 1 && choice <= 11) {
+            return choice;
+        } else {
+            cout << "Invalid choice, please enter a number between 1 and 11.\n";
+        }
+    }
+}
+
+string getWord(const string& prompt) {
+    string word;
+    cout << prompt;
+    while (true) {
+        cin >> word;
+        if (!word.empty() && all_of(word.begin(), word.end(), ::isalpha)) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return word;
+        } else {
+            cout << "Invalid input, please enter a valid word (letters only): ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    }
+}
 
 int main() {
     Trie trie;
-    trie.insert("hello");
-    trie.insert("help");
-    trie.insert("helicopter");
-    trie.insert("world");
+    int choice;
+    string word;
 
-    int currentTime = 100; // Example current time
-    trie.applyWeightDecay();
-    trie.optimizePaths(currentTime);
+    do {
+        printMenu();
+        choice = getChoice();
 
-    cout << "Rebalance triggered after multiple insertions." << endl;
-    cout << "Search hello: " << trie.search("hello") << endl;
+        switch (choice) {
+            case 1: {
+                word = getWord("Enter word to insert: ");
+                trie.insert(word);
+                break;
+            }
+            case 2: {
+                word = getWord("Enter word to search: ");
+                trie.search(word);
+                break;
+            }
+            case 3: {
+                word = getWord("Enter word to delete: ");
+                trie.remove(word);
+                break;
+            }
+            case 4: {
+                trie.applyWeightDecay();
+                cout << "Weight decay applied to all nodes.\n";
+                break;
+            }
+            case 5: {
+                int currentTime;
+                cout << "Enter the current time for optimization: ";
+                cin >> currentTime;
+                trie.optimizePaths(currentTime);
+                cout << "Paths optimized based on usage and time.\n";
+                break;
+            }
+            case 6: {
+                cout << "Visual representation of the Trie:\n";
+                trie.view();
+                break;
+            }
+            case 7: {
+                cout << "\nHelp - Trie CLI Commands:\n";
+                cout << "1: Insert a word into the Trie.\n";
+                cout << "2: Search for a word in the Trie.\n";
+                cout << "3: Delete a word from the Trie.\n";
+                cout << "4: Apply weight decay to all nodes.\n";
+                cout << "5: Optimize paths based on usage and time.\n";
+                cout << "6: View a visual representation of the Trie.\n";
+                cout << "7: Display this help message.\n";
+                cout << "8: Perform a prefix search.\n";
+                cout << "9: Perform a wildcard search.\n";
+                cout << "10: Get auto-complete suggestions.\n";
+                cout << "11: Exit the application.\n";
+                cout << "Choose an option by entering the corresponding number.\n";
+                break;
+            }
+            case 8: {
+                word = getWord("Enter prefix: ");
+                for (const auto& result : trie.searchPrefix(word)) {
+                    cout << result << endl;
+                }
+                break;
+            }
+            case 9: {
+                word = getWord("Enter search pattern (use '*' for wildcard): ");
+                for (const auto& result : trie.wildcardSearch(word)) {
+                    cout << result << endl;
+                }
+                break;
+            }
+            case 10: {
+                word = getWord("Enter prefix for suggestions: ");
+                for (const auto& suggestion : trie.autoComplete(word)) {
+                    cout << suggestion << endl;
+                }
+                break;
+            }
+            case 11: 
+                cout << "Exiting...\n";
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    } while (true);
+
     return 0;
 }
+
+
+/*int main() {
+    int passedTests = 0;
+    int totalTests = 6;
+
+    {
+        Trie trie;
+        trie.insert("hello");
+        if (trie.search("hello")) {
+            cout << "Test 1 Passed: Insert and Search Single Word\n";
+            passedTests++;
+        } else {
+            cout << "Test 1 Failed: Insert and Search Single Word\n";
+        }
+    }
+
+    {
+        Trie trie;
+        if (!trie.search("world")) {
+            cout << "Test 2 Passed: Search Non-Existent Word\n";
+            passedTests++;
+        } else {
+            cout << "Test 2 Failed: Search Non-Existent Word\n";
+        }
+    }
+
+    {
+        Trie trie;
+        trie.insert("hello");
+        trie.insert("world");
+        trie.insert("help");
+        if (trie.search("hello") && trie.search("world") && trie.search("help")) {
+            cout << "Test 3 Passed: Insert and Search Multiple Words\n";
+            passedTests++;
+        } else {
+            cout << "Test 3 Failed: Insert and Search Multiple Words\n";
+        }
+    }
+
+    {
+        Trie trie;
+        trie.insert("hello");
+        trie.insert("hello");
+        if (trie.search("hello")) {
+            cout << "Test 4 Passed: Insert Duplicates and Search\n";
+            passedTests++;
+        } else {
+            cout << "Test 4 Failed: Insert Duplicates and Search\n";
+        }
+    }
+
+    {
+        Trie trie;
+        trie.insert("");
+        if (trie.search("")) {
+            cout << "Test 5 Passed: Insert and Search Empty String\n";
+            passedTests++;
+        } else {
+            cout << "Test 5 Failed: Insert and Search Empty String\n";
+        }
+    }
+
+    {
+        Trie trie;
+        if (!trie.search("")) {
+            cout << "Test 6 Passed: Search Empty Trie\n";
+            passedTests++;
+        } else {
+            cout << "Test 6 Failed: Search Empty Trie\n";
+        }
+    }
+
+    cout << "\nTotal Tests Passed: " << passedTests << "/" << totalTests << endl;
+
+    return passedTests == totalTests ? 0 : 1;
+}*/
