@@ -20,17 +20,17 @@ int main() {
     string word;
 
     do {
-        printMenu();        // Display the available commands
-        choice = getChoice();  // Get the user's choice
+        printMenu();       
+        choice = getChoice(); 
 
         switch (choice) {
-            case 1: { // Insert word
+            case 1: { 
                 word = getWord("Enter word to insert: ");
                 trie.insert(word);
                 cout << "\"" << word << "\" has been inserted into the Trie.\n";
                 break;
             }
-            case 2: { // Search word
+            case 2: { 
                 word = getWord("Enter word to search: ");
                 if(trie.search(word)) {
                     cout << "\"" << word << "\" is found in the Trie.\n";
@@ -39,18 +39,18 @@ int main() {
                 }
                 break;
             }
-            case 3: { // Delete word
+            case 3: { 
                 word = getWord("Enter word to delete: ");
                 trie.remove(word);
                 cout << "\"" << word << "\" has been removed from the Trie, if it existed.\n";
                 break;
             }
-            case 4: { // Apply weight decay
+            case 4: { 
                 trie.applyWeightDecay();
                 cout << "Weight decay applied to all nodes.\n";
                 break;
             }
-            case 5: { // Optimize paths
+            case 5: { 
                 int currentTime;
                 cout << "Enter the current time for optimization: ";
                 cin >> currentTime;
@@ -58,36 +58,36 @@ int main() {
                 cout << "Paths optimized based on usage and time.\n";
                 break;
             }
-            case 6: { // View Trie
+            case 6: { 
                 trie.view();
                 break;
             }
-            case 7: { // Help
+            case 7: { 
                 printMenu();
                 break;
             }
-            case 8: { // Prefix Search
+            case 8: { 
                 word = getWord("Enter prefix: ");
                 for (const auto& result : trie.searchPrefix(word)) {
                     cout << result << endl;
                 }
                 break;
             }
-            case 9: { // Wildcard Search
+            case 9: { 
                 word = getWord("Enter search pattern (use '*' for wildcard): ");
                 for (const auto& result : trie.wildcardSearch(word)) {
                     cout << result << endl;
                 }
                 break;
             }
-            case 10: { // Auto-Complete
+            case 10: { 
                 word = getWord("Enter prefix for suggestions: ");
                 for (const auto& suggestion : trie.autoComplete(word)) {
                     cout << suggestion << endl;
                 }
                 break;
             }
-            case 11: // Exit
+            case 11: 
                 cout << "Exiting...\n";
                 return 0;
             default:
@@ -95,5 +95,5 @@ int main() {
         }
     } while (true);
 
-    return 0; // This return statement will never be reached due to the loop, but it's good practice to include it.
+    return 0; 
 }
