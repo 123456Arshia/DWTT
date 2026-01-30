@@ -14,7 +14,7 @@ using namespace std;
 
 void printMenu();
 int getChoice();
-string getWord(const string& prompt);
+string getWord(const string& prompt, bool allowWildcard = false);
 
 
 

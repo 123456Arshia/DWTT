@@ -11,6 +11,7 @@
 #include "Cli.hpp"
 #include "Trie.hpp"
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
@@ -54,8 +55,17 @@ int main() {
                 int currentTime;
                 cout << "Enter the current time for optimization: ";
                 cin >> currentTime;
-                trie.optimizePaths(currentTime);
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                auto report = trie.optimizePaths(currentTime);
                 cout << "Paths optimized based on usage and time.\n";
+                if (report.empty()) {
+                    cout << "No shortcuts created.\n";
+                } else {
+                    cout << "Shortcuts created:\n";
+                    for (const auto& line : report) {
+                        cout << line << '\n';
+                    }
+                }
                 break;
             }
             case 6: { 
@@ -74,7 +84,7 @@ int main() {
                 break;
             }
             case 9: { 
-                word = getWord("Enter search pattern (use '*' for wildcard): ");
+                word = getWord("Enter search pattern (use '*' for wildcard): ", true);
                 for (const auto& result : trie.wildcardSearch(word)) {
                     cout << result << endl;
                 }

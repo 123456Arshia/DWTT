@@ -7,6 +7,8 @@
 
 #include "Cli.hpp"
 #include "Trie.hpp"
+#include <algorithm>
+#include <cctype>
 #include <iostream>
 #include <sstream>
 #include <limits>
@@ -43,16 +45,22 @@ int getChoice() {
     }
 }
 
-std::string getWord(const std::string& prompt) {
+std::string getWord(const std::string& prompt, bool allowWildcard) {
     string word;
     cout << prompt;
     while (true) {
         cin >> word;
-        if (!word.empty() && all_of(word.begin(), word.end(), [](char ch) { return isalpha(ch) || ch == '*'; })) {
+        if (!word.empty() && all_of(word.begin(), word.end(), [allowWildcard](char ch) {
+                return std::isalpha(static_cast<unsigned char>(ch)) || (allowWildcard && ch == '*');
+            })) {
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             return word;
         } else {
-            cout << "Invalid input, please enter a valid word (letters only, '*' allowed for wildcard): ";
+            cout << "Invalid input, please enter a valid word (letters only";
+            if (allowWildcard) {
+                cout << ", '*' allowed for wildcard";
+            }
+            cout << "): ";
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
         }

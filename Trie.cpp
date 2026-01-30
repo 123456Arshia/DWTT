@@ -30,7 +30,7 @@ void Trie::insert(const string& word) {
     }
     current->endOfWord = true;
     operationCount++;
-    if (shouldRebalance()) {
+    if (operationCount >= REBALANCE_THRESHOLD && shouldRebalance()) {
         rebalance();
     }
 }
@@ -51,7 +51,10 @@ void Trie::remove(const string& word) {
 }
 
 
-bool Trie::removeHelper(TrieNode* current, const string& word, int index) {
+bool Trie::removeHelper(TrieNode* current, const string& word, size_t index) {
+    if (current == nullptr) {
+        return false;
+    }
     if (index == word.size()) {
         if (!current->endOfWord) {
             return false;
@@ -61,20 +64,20 @@ bool Trie::removeHelper(TrieNode* current, const string& word, int index) {
     }
 
     char ch = word[index];
-    TrieNode* node = current->children[ch];
-    if (!node) {
+    auto it = current->children.find(ch);
+    if (it == current->children.end() || it->second == nullptr) {
         return false;
     }
 
-    bool shouldDeleteCurrentNode = removeHelper(node, word, index + 1) && !node->endOfWord;
+    TrieNode* node = it->second;
+    bool shouldDeleteChild = removeHelper(node, word, index + 1);
 
-    if (shouldDeleteCurrentNode) {
+    if (shouldDeleteChild) {
         delete node;
-        current->children.erase(ch);
-        return current->children.empty();
+        current->children.erase(it);
     }
 
-    return false;
+    return current->children.empty() && !current->endOfWord;
 }
 
 
@@ -94,10 +97,6 @@ void Trie::rebalance() {
 
 
 void Trie::clearTrie(TrieNode* node) {
-    if (node == nullptr) return;
-    for (auto& child : node->children) {
-        clearTrie(child.second);
-    }
     delete node;
 }
 
@@ -111,14 +110,28 @@ void Trie::decayWeights(TrieNode* node) {
 }
 
 
-void Trie::optimizeNode(TrieNode* node, TrieNode* parent, char childKey, int depth, int currentTime) {
+void Trie::optimizeNode(TrieNode* node, TrieNode* parent, int depth, int currentTime, const string& path, vector<string>* report) {
     if (node == nullptr) return;
     int threshold = calculateThreshold(depth, currentTime - node->lastAccessTime);
     if (node->weight > threshold && parent && depth > 1) {
-        parent->shortcut = node;
+        if (parent->shortcut != node) {
+            parent->shortcut = node;
+            if (report) {
+                string parentPath = path.size() > 0 ? path.substr(0, path.size() - 1) : "<root>";
+                string nodePath = path.empty() ? "<root>" : path;
+                int age = currentTime - node->lastAccessTime;
+                report->push_back(
+                    "shortcut: parent=\"" + parentPath + "\" -> node=\"" + nodePath +
+                    "\" (depth=" + to_string(depth) +
+                    ", weight=" + to_string(node->weight) +
+                    ", threshold=" + to_string(threshold) +
+                    ", age=" + to_string(age) + ")"
+                );
+            }
+        }
     }
     for (auto& child : node->children) {
-        optimizeNode(child.second, node, child.first, depth + 1, currentTime);
+        optimizeNode(child.second, node, depth + 1, currentTime, path + child.first, report);
     }
 }
 
@@ -167,8 +180,8 @@ pair<int, int> Trie::getWeightSumAndCount(TrieNode* node) {
 
 
 int Trie::getAverageWeight(TrieNode* node) {
-    auto [totalWeight, totalCount] = getWeightSumAndCount(node);
-    return totalCount > 0 ? totalWeight / totalCount : 0;
+    auto totals = getWeightSumAndCount(node);
+    return totals.second > 0 ? totals.first / totals.second : 0;
 }
 
 
@@ -237,7 +250,7 @@ vector<string> Trie::wildcardSearch(const string& word) {
     return results;
 }
 
-void Trie::searchWildcard(TrieNode* node, const string& word, int index, string currentWord, vector<string>& results) {
+void Trie::searchWildcard(TrieNode* node, const string& word, size_t index, string currentWord, vector<string>& results) {
     if (node == nullptr) {
         return;
     }
@@ -268,8 +281,10 @@ void Trie::applyWeightDecay() {
     decayWeights(root);
 }
 
-void Trie::optimizePaths(int currentTime) {
-    optimizeNode(root, nullptr, '\0', 0, currentTime);
+vector<string> Trie::optimizePaths(int currentTime) {
+    vector<string> report;
+    optimizeNode(root, nullptr, 0, currentTime, "", &report);
+    return report;
 }
 void viewTrie(TrieNode* node, const string& prefix, string indent, bool last) {
     if (node == nullptr) return;
